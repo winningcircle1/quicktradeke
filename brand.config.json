@@ -1,16 +1,16 @@
 {
-    "brand_name": "Trading Platform",
-    "brand_logo": "brand/platform-logo.svg",
-    "brand_logo_dark": "brand/platform-logo.svg",
+    "brand_name": "QuickTrade Kenya",
+    "brand_logo": "brand/platform-logo.png",
+    "brand_logo_dark": "brand/platform-logo-dark.png",
     "brand_domain": "deriv.com",
     "brand_hostname": {
         "staging": "quicktradeke.pages.dev",
         "production": "quicktradeke.pages.dev"
     },
     "platform": {
-        "name": "Trading Platform",
-        "description": "A whole new trading experience on a powerful yet easy to use platform.",
-        "logo": "brand/platform-logo.svg",
+        "name": "QuickTrade Kenya",
+        "description": "QuickTrade Kenya - fast, reliable derivatives trading for Kenyan traders.",
+        "logo": "brand/platform-icon.png",
         "home_url": "https://home.deriv.com/dashboard",
         "help_centre_url": "https://trade.deriv.com/help-centre"
     },
