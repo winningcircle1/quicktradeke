@@ -5,7 +5,7 @@
     "brand_domain": "deriv.com",
     "brand_hostname": {
         "staging": "quicktradeke.pages.dev",
-        "production": "quicktradeke.pages.dev"
+        "production": "quicktradeke.site"
     },
     "platform": {
         "name": "QuickTrade Kenya",
@@ -27,7 +27,7 @@
         "production": "https://auth.deriv.com",
         "oauth_scopes": ["trade", "account_manage"],
         "oauth_redirect_uri_staging": "https://quicktradeke.netlify.app/main.html",
-        "oauth_redirect_uri_production": "https://quicktradeke.pages.dev",
+        "oauth_redirect_uri_production": "https://quicktradeke.site",
         "oauth_app_id": ""
     },
     "derivws": {
