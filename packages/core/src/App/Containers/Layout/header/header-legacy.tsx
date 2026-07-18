@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 
-import { DerivProductBrandLightDerivTraderLogoIcon } from '@deriv/quill-icons';
+import BrandLogo from 'App/Components/Elements/BrandLogo/brand-logo';
 import { observer, useStore } from '@deriv/stores';
 import { useDevice } from '@deriv-com/ui';
 
@@ -37,7 +37,7 @@ const HeaderLegacy = observer(() => {
             <div className='header__menu-items'>
                 {isMobile && (
                     <div className='header__logo'>
-                        <DerivProductBrandLightDerivTraderLogoIcon height='32px' width='32px' />
+                        <BrandLogo width='32px' height='32px' />
                     </div>
                 )}
                 {is_logging_in ? (
