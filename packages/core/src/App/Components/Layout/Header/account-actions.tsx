@@ -47,7 +47,7 @@ const AccountActionsComponent = observer(() => {
     // Button logic:
     // - If only demo accounts exist -> show "Try real"
     // - Otherwise (real only or both real and demo) -> show "Deposit"
-    const buttonLabel = hasOnlyDemoAccounts ? localize('Try real') : localize('Deposit');
+    const buttonLabel = hasOnlyDemoAccounts ? localize('Try real') : localize('Coming soon');
 
     const handleTransferClick = () => {
         if (hasOnlyDemoAccounts) {
@@ -78,6 +78,7 @@ const AccountActionsComponent = observer(() => {
                 aria-label={buttonLabel}
                 type='button'
                 has_effect
+                disabled={!hasOnlyDemoAccounts}
             >
                 <Text size='xs' weight='bold' color='white'>
                     {buttonLabel}

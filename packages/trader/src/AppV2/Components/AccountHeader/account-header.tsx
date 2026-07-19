@@ -94,18 +94,14 @@ const AccountHeader = observer(
         // Button logic:
         // - If only demo accounts exist -> show "Try real"
         // - Otherwise (real only or both real and demo) -> show "Deposit"
-        const buttonLabel = hasOnlyDemoAccounts ? localize('Try real') : localize('Deposit');
+        const buttonLabel = hasOnlyDemoAccounts ? localize('Try real') : localize('Coming soon');
 
         const handleTransferClick = () => {
             if (hasOnlyDemoAccounts) {
                 // Show modal instead of redirecting directly
                 ui.toggleTryRealModal(true);
-            } else {
-                // Transfer button (for both account types or real-only accounts)
-                sendBridgeEvent('trading:transfer', () => {
-                    window.location.href = getDepositUrl();
-                });
             }
+            // Deposit/transfer is not available yet — button is disabled below for this case.
         };
 
         const renderAccountInfo = () => (
@@ -165,6 +161,7 @@ const AccountHeader = observer(
                     onClick={handleTransferClick}
                     aria-label={buttonLabel}
                     type='button'
+                    disabled={!hasOnlyDemoAccounts}
                 >
                     <Text size='xs' weight='bold' color='white'>
                         {buttonLabel}
