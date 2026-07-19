@@ -159,13 +159,26 @@ const AccountHeader = observer(
                 <Button
                     className='account-header__transfer'
                     onClick={handleTransferClick}
-                    aria-label={buttonLabel}
+                    aria-label={hasOnlyDemoAccounts ? buttonLabel : localize('Deposit - Coming soon')}
                     type='button'
                     disabled={!hasOnlyDemoAccounts}
                 >
-                    <Text size='xs' weight='bold' color='white'>
-                        {buttonLabel}
-                    </Text>
+                    {hasOnlyDemoAccounts ? (
+                        <Text size='xs' weight='bold' color='white'>
+                            {buttonLabel}
+                        </Text>
+                    ) : (
+                        <div
+                            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1.1 }}
+                        >
+                            <Text size='xs' weight='bold' color='white'>
+                                {localize('Deposit')}
+                            </Text>
+                            <Text size='xxxs' color='white'>
+                                {localize('Coming soon')}
+                            </Text>
+                        </div>
+                    )}
                 </Button>
             </React.Fragment>
         );
