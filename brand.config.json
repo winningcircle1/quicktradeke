@@ -15,8 +15,8 @@
         "help_centre_url": "https://trade.deriv.com/help-centre"
     },
     "signup_url": {
-        "production": "https://home.deriv.com/dashboard/signup",
-        "staging": "https://staging-home.deriv.com/dashboard/signup"
+        "production": "https://partner-tracking.deriv.com/click?a=31215&o=1&c=3&link_id=1",
+        "staging": "https://partner-tracking.deriv.com/click?a=31215&o=1&c=3&link_id=1"
     },
     "deposit_url": {
         "staging": "https://staging.dtrader-template.pages.dev/transfer",

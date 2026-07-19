@@ -576,37 +576,66 @@ export default class ClientStore extends BaseStore {
     async switchAccount(account_id) {
         if (!account_id || this.loginid === account_id) return;
 
-        // Track the newly active account for multi-tab sync
-        localStorage.setItem('active_loginid', account_id);
-        sessionStorage.setItem('active_loginid', account_id);
+        // Block trading and other account-sensitive UI immediately, for the
+        // full duration of the switch — this guard was previously declared
+        // in ui-store.js but never actually triggered from here, meaning
+        // the Buy button's is_switching_account check always evaluated
+        // false and never protected users during an in-flight switch.
+        this.root_store.ui.setIsSwitchingAccount(true);
 
-        // Update account_type so is_virtual computed reflects the switched account immediately.
-        // DEM-prefixed IDs are demo accounts; all others are real.
-        const switched_account_type = account_id.startsWith('DEM') ? 'demo' : 'real';
-        localStorage.setItem('account_type', switched_account_type);
+        const previous_loginid = this.loginid;
+        const previous_account_type = localStorage.getItem('account_type');
 
-        // Update the store's loginid immediately so components don't render stale data
-        // while waiting for the balance response to arrive.
-        this.setLoginId(account_id);
-
-        // Clear notifications when switching accounts (similar to old implementation)
-        this.root_store.notifications.removeNotifications(true);
-        this.root_store.notifications.removeTradeNotifications();
-        this.root_store.notifications.removeAllNotificationMessages(true);
-
-        // Clear contract markers to prevent showing previous account's contracts on chart
-        this.root_store.contract_trade.clearContracts();
-
-        // Fetch a fresh OTP for the new account — OTP URLs are single-use and
-        // embed the account ID, so reusing the old URL would connect to the wrong account.
         try {
+            // Track the newly active account for multi-tab sync
+            localStorage.setItem('active_loginid', account_id);
+            sessionStorage.setItem('active_loginid', account_id);
+            // Update account_type so is_virtual computed reflects the switched account immediately.
+            // DEM-prefixed IDs are demo accounts; all others are real.
+            const switched_account_type = account_id.startsWith('DEM') ? 'demo' : 'real';
+            localStorage.setItem('account_type', switched_account_type);
+            // Update the store's loginid immediately so components don't render stale data
+            // while waiting for the balance response to arrive.
+            this.setLoginId(account_id);
+            // Clear notifications when switching accounts (similar to old implementation)
+            this.root_store.notifications.removeNotifications(true);
+            this.root_store.notifications.removeTradeNotifications();
+            this.root_store.notifications.removeAllNotificationMessages(true);
+            // Clear contract markers to prevent showing previous account's contracts on chart
+            this.root_store.contract_trade.clearContracts();
+
+            // Fetch a fresh OTP for the new account — OTP URLs are single-use and
+            // embed the account ID, so reusing the old URL would connect to the wrong account.
+            // If this fails, we must NOT proceed to reconnect with a stale/used URL —
+            // doing so previously left the UI showing the new account while the live
+            // WebSocket connection stayed authenticated as the old one.
             const ws_url = await fetchOTP(account_id);
             BinarySocket.setWSUrl(ws_url);
+            BinarySocket.closeAndOpenNewConnection();
         } catch (error) {
+            // Roll back fully to the previous account rather than leaving the UI
+            // and the live connection in a mismatched state.
+            localStorage.setItem('active_loginid', previous_loginid);
+            sessionStorage.setItem('active_loginid', previous_loginid);
+            if (previous_account_type) {
+                localStorage.setItem('account_type', previous_account_type);
+            }
+            this.setLoginId(previous_loginid);
             // eslint-disable-next-line no-console
-            console.error('[Auth] Failed to fetch OTP for account switch:', error);
+            console.error('[Auth] Failed to switch account, rolled back to previous account:', error);
+            this.root_store.notifications.addNotificationMessage({
+                key: 'account_switch_failed',
+                header: localize('Account switch failed'),
+                message: localize(
+                    'We could not switch your account. You have been kept on your previous account. Please try again.'
+                ),
+                type: 'danger',
+                is_persistent: false,
+                should_show_again: true,
+                is_disposable: true,
+            });
+        } finally {
+            this.root_store.ui.setIsSwitchingAccount(false);
         }
-
-        BinarySocket.closeAndOpenNewConnection();
     }
 }
