@@ -1,12 +1,13 @@
 import React from 'react';
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
+import { useHistory } from 'react-router-dom';
 
 import { useDerivativesAccount, useMobileBridge } from '@deriv/api';
 import { Button, Skeleton, Text } from '@deriv/components';
 import AccountSwitcher from '@deriv/core/src/App/Components/Layout/Header/account-switcher';
 import { LegacyChevronDown1pxIcon } from '@deriv/quill-icons';
-import { addComma, getDepositUrl, getCurrencyDisplayCode, getSignupUrl, redirectToLogin } from '@deriv/shared';
+import { addComma, getCurrencyDisplayCode, getSignupUrl, redirectToLogin, routes } from '@deriv/shared';
 import { useStore } from '@deriv/stores';
 import { Localize, useTranslations } from '@deriv-com/translations';
 import { useDevice } from '@deriv-com/ui';
@@ -29,6 +30,7 @@ const AccountHeader = observer(
     }: AccountHeaderProps = {}) => {
         const { localize } = useTranslations();
         const { client, common, ui } = useStore();
+        const history = useHistory();
         const { is_switching_account, setIsSwitchingAccount } = ui;
 
         const { isMobile } = useDevice();
@@ -94,14 +96,17 @@ const AccountHeader = observer(
         // Button logic:
         // - If only demo accounts exist -> show "Try real"
         // - Otherwise (real only or both real and demo) -> show "Deposit"
-        const buttonLabel = hasOnlyDemoAccounts ? localize('Try real') : localize('Coming soon');
+        const buttonLabel = hasOnlyDemoAccounts ? localize('Try real') : localize('Deposit');
 
         const handleTransferClick = () => {
             if (hasOnlyDemoAccounts) {
                 // Show modal instead of redirecting directly
                 ui.toggleTryRealModal(true);
+            } else {
+                // Deposits aren't live yet — send the user to an in-app notice
+                // instead of the real cashier flow.
+                history.push(routes.deposit);
             }
-            // Deposit/transfer is not available yet — button is disabled below for this case.
         };
 
         const renderAccountInfo = () => (
@@ -159,26 +164,12 @@ const AccountHeader = observer(
                 <Button
                     className='account-header__transfer'
                     onClick={handleTransferClick}
-                    aria-label={hasOnlyDemoAccounts ? buttonLabel : localize('Deposit - Coming soon')}
+                    aria-label={buttonLabel}
                     type='button'
-                    disabled={!hasOnlyDemoAccounts}
                 >
-                    {hasOnlyDemoAccounts ? (
-                        <Text size='xs' weight='bold' color='white'>
-                            {buttonLabel}
-                        </Text>
-                    ) : (
-                        <div
-                            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1.1 }}
-                        >
-                            <Text size='xs' weight='bold' color='white'>
-                                {localize('Deposit')}
-                            </Text>
-                            <Text size='xxxs' color='white'>
-                                {localize('Coming soon')}
-                            </Text>
-                        </div>
-                    )}
+                    <Text size='xs' weight='bold' color='white'>
+                        {buttonLabel}
+                    </Text>
                 </Button>
             </React.Fragment>
         );

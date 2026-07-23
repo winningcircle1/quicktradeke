@@ -576,6 +576,16 @@ export default class ClientStore extends BaseStore {
     async switchAccount(account_id) {
         if (!account_id || this.loginid === account_id) return;
 
+        // Guard against overlapping switches: if the user clicks a different
+        // account (or the same one twice) while a previous switch is still
+        // in flight, ignore the new request rather than letting two async
+        // switches race each other. Racing switches previously caused the
+        // final loginid/localStorage state to depend on whichever call's
+        // network requests happened to resolve last, not on the user's
+        // actual last click — producing a UI where the account label and
+        // balance could end up reflecting two different accounts.
+        if (this.root_store.ui.is_switching_account) return;
+
         // Block trading and other account-sensitive UI immediately, for the
         // full duration of the switch — this guard was previously declared
         // in ui-store.js but never actually triggered from here, meaning

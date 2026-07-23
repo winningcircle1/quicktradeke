@@ -1,10 +1,11 @@
 import React from 'react';
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
+import { useHistory } from 'react-router-dom';
 
 import { useDerivativesAccount, useMobileBridge } from '@deriv/api';
 import { Button, Skeleton, Text } from '@deriv/components';
-import { getBrandUrl, getSignupUrl } from '@deriv/shared';
+import { getBrandUrl, getSignupUrl, routes } from '@deriv/shared';
 import { useStore } from '@deriv/stores';
 import { useTranslations } from '@deriv-com/translations';
 
@@ -19,6 +20,7 @@ const AccountInfo = React.lazy(
 
 const AccountActionsComponent = observer(() => {
     const { client, common, ui } = useStore();
+    const history = useHistory();
     const { currency, is_logged_in, loginid } = client;
     const { is_switching_account, setIsSwitchingAccount } = ui;
 
@@ -47,19 +49,16 @@ const AccountActionsComponent = observer(() => {
     // Button logic:
     // - If only demo accounts exist -> show "Try real"
     // - Otherwise (real only or both real and demo) -> show "Deposit"
-    const buttonLabel = hasOnlyDemoAccounts ? localize('Try real') : localize('Coming soon');
+    const buttonLabel = hasOnlyDemoAccounts ? localize('Try real') : localize('Deposit');
 
     const handleTransferClick = () => {
         if (hasOnlyDemoAccounts) {
             // Show modal instead of redirecting directly
             ui.toggleTryRealModal(true);
         } else {
-            // Deposit button (for both account types or real-only accounts)
-            const brandUrl = getBrandUrl();
-            const lang_param = common.current_language ? `&lang=${common.current_language}` : '';
-            sendBridgeEvent('trading:transfer', () => {
-                window.location.href = `${brandUrl}/transfer?from=dtrader&source=options&acc=options&curr=${currency}${lang_param}`;
-            });
+            // Deposits aren't live yet — send the user to an in-app notice
+            // instead of the real cashier/transfer flow.
+            history.push(routes.deposit);
         }
     };
 
@@ -75,25 +74,13 @@ const AccountActionsComponent = observer(() => {
             <Button
                 className='acc-info__transfer-button'
                 onClick={handleTransferClick}
-                aria-label={hasOnlyDemoAccounts ? buttonLabel : localize('Deposit - Coming soon')}
+                aria-label={buttonLabel}
                 type='button'
                 has_effect
-                disabled={!hasOnlyDemoAccounts}
             >
-                {hasOnlyDemoAccounts ? (
-                    <Text size='xs' weight='bold' color='white'>
-                        {buttonLabel}
-                    </Text>
-                ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1.1 }}>
-                        <Text size='xs' weight='bold' color='white'>
-                            {localize('Deposit')}
-                        </Text>
-                        <Text size='xxxs' color='white'>
-                            {localize('Coming soon')}
-                        </Text>
-                    </div>
-                )}
+                <Text size='xs' weight='bold' color='white'>
+                    {buttonLabel}
+                </Text>
             </Button>
         </React.Suspense>
     );

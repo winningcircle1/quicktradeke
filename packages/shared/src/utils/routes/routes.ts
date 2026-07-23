@@ -9,6 +9,7 @@ export const routes = {
     menu: '/menu',
     trader_positions: '/positions',
     contract: '/contract/:contract_id',
+    deposit: '/deposit',
 
     // Reports routes
     reports: '/reports',
