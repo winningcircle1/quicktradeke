@@ -576,8 +576,11 @@ export default class ClientStore extends BaseStore {
     switchAccount(account_id) {
         if (!account_id || this.loginid === account_id) return;
 
-        // Prevent overlapping switches (e.g. double-click)
-        if (this.root_store.ui.is_switching_account) return;
+        // is_switching_account is already set to true by the caller
+        // (account-switcher.tsx's onAccountSwitch) right before this runs,
+        // so we don't guard on it here — doing so caused every switch
+        // attempt to bail out immediately, since the flag was already true
+        // by the time this function checked it.
         this.root_store.ui.setIsSwitchingAccount(true);
 
         // Determine account type the same way as before (DEM-prefixed = demo)
