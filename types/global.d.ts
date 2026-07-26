@@ -22,7 +22,8 @@ declare global {
             | 'trading:back'
             | 'trading:home'
             | 'trading:transfer'
-            | 'trading:account_creation';
+            | 'trading:account_creation'
+            | 'trading:bots';
         data?: TradingConfigData; // Config data for trading:config event
     }
     interface DerivAppChannel {

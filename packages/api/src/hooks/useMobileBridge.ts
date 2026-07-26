@@ -75,7 +75,8 @@ export const useMobileBridge = () => {
         | 'trading:back'
         | 'trading:home'
         | 'trading:transfer'
-        | 'trading:account_creation';
+        | 'trading:account_creation'
+        | 'trading:bots';
 
     type SendBridgeEventFn = {
         (event: EventName): Promise<boolean>;
