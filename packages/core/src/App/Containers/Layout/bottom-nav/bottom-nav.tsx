@@ -10,10 +10,9 @@ import {
     StandaloneChartAreaRegularIcon,
     StandaloneClockThreeFillIcon,
     StandaloneClockThreeRegularIcon,
-    StandaloneHouseBlankFillIcon,
-    StandaloneHouseBlankRegularIcon,
 } from '@deriv/quill-icons';
-import { getBrandUrl, routes } from '@deriv/shared';
+import BotIcon from 'Assets/SvgComponents/ic-bot.svg';
+import { routes } from '@deriv/shared';
 import { useStore } from '@deriv/stores';
 import { Badge, Navigation } from '@deriv-com/quill-ui';
 import { Localize } from '@deriv-com/translations';
@@ -34,11 +33,11 @@ const BottomNav = observer(({ className }: BottomNavProps) => {
     const bottomNavItems = React.useMemo(
         () => [
             {
-                icon: <StandaloneHouseBlankRegularIcon iconSize='sm' fill='var(--color-text-primary)' />,
-                activeIcon: <StandaloneHouseBlankFillIcon iconSize='sm' />,
-                label: <Localize i18n_default_text='Home' />,
+                icon: <BotIcon style={{ width: '20px', height: '20px' }} />,
+                activeIcon: <BotIcon style={{ width: '20px', height: '20px' }} />,
+                label: <Localize i18n_default_text='Bots' />,
                 path: null,
-                action: 'home' as const,
+                action: 'bots' as const,
             },
             {
                 icon: <StandaloneChartAreaRegularIcon iconSize='sm' fill='var(--color-text-primary)' />,
@@ -120,12 +119,10 @@ const BottomNav = observer(({ className }: BottomNavProps) => {
     const handleSelect = (index: number) => {
         const item = bottomNavItems[index];
 
-        if (item.action === 'home') {
-            sendBridgeEvent('trading:home', () => {
-                const brandUrl = getBrandUrl();
-                const lang_param = current_language ? `&lang=${encodeURIComponent(current_language)}` : '';
-                const curr = encodeURIComponent(currency || '');
-                window.location.href = `${brandUrl}/home?source=options&acc=options&curr=${curr}${lang_param}`;
+        if (item.action === 'bots') {
+            sendBridgeEvent('trading:bots', () => {
+                const account_type = client.is_virtual ? 'demo' : 'real';
+                window.location.href = `https://bots.quicktradeke.site/?account_id=${client.loginid}&account_type=${account_type}`;
             });
             return;
         }

@@ -6,7 +6,6 @@ import { useMobileBridge } from '@deriv/api';
 import { Button, Flyout, Text } from '@deriv/components';
 import {
     LabelPairedLifeRingSmRegularIcon,
-    LegacyHomeNewIcon,
     StandaloneCircleUserFillIcon,
     StandaloneCircleUserRegularIcon,
     StandaloneClockThreeFillIcon,
@@ -17,12 +16,12 @@ import {
     StandaloneMoonRegularIcon,
     StandaloneSunBrightRegularIcon,
 } from '@deriv/quill-icons';
+import BotIcon from 'Assets/SvgComponents/ic-bot.svg';
 // [AI]
 import {
     getBrandLogo,
     getBrandLogoDark,
     getBrandName,
-    getHomeUrl,
     getHelpCentreUrl,
     isFeatureEnabled,
     routes,
@@ -95,10 +94,16 @@ const Sidebar = observer(() => {
         window.open(getHelpCentreUrl(), '_blank', 'noopener,noreferrer');
     };
 
-    const handleHomeClick = () => {
+    const handleBotsClick = () => {
         closeSidebarFlyout();
-        sendBridgeEvent('trading:home', () => {
-            window.location.href = getHomeUrl();
+        // Pass the current account to the bots app so it can silently
+        // authorize itself using the same account_id/account_type URL-param
+        // convention it already reads on load, instead of requiring a
+        // second separate login.
+        const account_type = client.is_virtual ? 'demo' : 'real';
+        const botsUrl = `https://bots.quicktradeke.site/?account_id=${client.loginid}&account_type=${account_type}`;
+        sendBridgeEvent('trading:bots', () => {
+            window.location.href = botsUrl;
         });
     };
 
@@ -112,12 +117,12 @@ const Sidebar = observer(() => {
 
     const navigationItems: TSidebarItem[] = [
         {
-            id: 'home',
-            icon: <LegacyHomeNewIcon iconSize='xs' fill='var(--color-text-primary)' />,
-            label: localize('Home'),
-            onClick: handleHomeClick,
+            id: 'bots',
+            icon: <BotIcon style={{ width: '20px', height: '20px' }} />,
+            label: localize('Bots'),
+            onClick: handleBotsClick,
             isActive: false,
-            dataTestId: 'dt_sidebar_home',
+            dataTestId: 'dt_sidebar_bots',
         },
         {
             id: 'positions',
