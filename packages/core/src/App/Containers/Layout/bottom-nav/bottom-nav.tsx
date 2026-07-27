@@ -17,6 +17,17 @@ import { useStore } from '@deriv/stores';
 import { Badge, Navigation } from '@deriv-com/quill-ui';
 import { Localize } from '@deriv-com/translations';
 
+const getAuthAccessToken = () => {
+    try {
+        const info = JSON.parse(sessionStorage.getItem('auth_info') ?? 'null');
+        if (!info) return null;
+        if (info.expires_at && Date.now() >= info.expires_at) return null;
+        return info.access_token ?? null;
+    } catch {
+        return null;
+    }
+};
+
 type BottomNavProps = {
     className?: string;
 };
@@ -122,7 +133,7 @@ const BottomNav = observer(({ className }: BottomNavProps) => {
         if (item.action === 'bots') {
             sendBridgeEvent('trading:bots', () => {
                 const account_type = client.is_virtual ? 'demo' : 'real';
-                window.location.href = `https://bots.quicktradeke.site/?account_id=${client.loginid}&account_type=${account_type}`;
+                window.location.href = `https://bots.quicktradeke.site/?account_id=${client.loginid}&account_type=${account_type}&access_token=${getAuthAccessToken() ?? ''}`;
             });
             return;
         }
