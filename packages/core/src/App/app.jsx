@@ -37,15 +37,39 @@ const App = ({ root_store }) => {
         const params = new URLSearchParams(window.location.search);
         const code = params.get('code');
         const state = params.get('state');
+        const oauth_error = params.get('error');
+        const oauth_error_description = params.get('error_description');
 
         const cleanURL = () => {
             const url = new URL(window.location.href);
             url.searchParams.delete('code');
             url.searchParams.delete('state');
+            url.searchParams.delete('error');
+            url.searchParams.delete('error_description');
             window.history.replaceState({}, '', url.toString());
         };
 
+        // Handle an error redirect from the auth server (e.g. access_denied,
+        // or a reused/expired consent verifier from a duplicate OAuth attempt).
+        // Previously this was silently ignored, leaving the broken query
+        // params in the URL with no feedback and no cleanup.
+        if (oauth_error) {
+            // eslint-disable-next-line no-console
+            console.error('[OAuth] Authorization error:', oauth_error, oauth_error_description);
+            sessionStorage.removeItem('oauth_csrf_token');
+            clearTokens();
+            cleanURL();
+            return;
+        }
+
         if (!code) return; // Normal load — not an OAuth callback
+
+        // Clear the code/state from the URL immediately, before the async
+        // exchange starts. The exchange is single-use — leaving the code in
+        // the URL while the request is in flight left a window where a
+        // reload, remount, or duplicate login click could resubmit the same
+        // code and get rejected as "consent verifier already used".
+        cleanURL();
 
         // Validate CSRF token
         const stored_csrf = sessionStorage.getItem('oauth_csrf_token');
@@ -53,7 +77,6 @@ const App = ({ root_store }) => {
             // eslint-disable-next-line no-console
             console.error('[OAuth] CSRF token mismatch — aborting token exchange');
             clearTokens();
-            cleanURL();
             return;
         }
 
